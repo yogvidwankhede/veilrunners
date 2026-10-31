@@ -1,0 +1,44 @@
+<!doctype html><html><head><meta charset="utf-8"><title>prop collider test</title>
+<style>body{margin:0;background:#111;color:#8f8;font:13px ui-monospace,monospace}#out{padding:10px;white-space:pre}</style>
+<script type="importmap">{"imports":{
+  "three":"/node_modules/three/build/three.module.js",
+  "three/examples/jsm/":"/node_modules/three/examples/jsm/"}}</script>
+</head><body><pre id="out">…</pre><script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { footprintRadius } from '/src/collision.js';
+import { S, MAP, RULES } from '/src/constants.js';
+
+const man = await (await fetch('/assets/manifest.json')).json();
+const load = u => new Promise((res,rej)=>new GLTFLoader().load(u,res,undefined,rej));
+const log=[`S=${S}  arena = ${(MAP.w*S).toFixed(1)} x ${(MAP.h*S).toFixed(1)} m`,
+           `speeds: walk ${(RULES.speed*S).toFixed(2)} m/s, sprint ${(RULES.sprint*S).toFixed(2)} m/s`, ''];
+const circles=[];
+for (const [k,cfg] of Object.entries(man.props||{})){
+  const g = await load('/assets/'+cfg.file);
+  const proto = g.scene;
+  const bb = new THREE.Box3().setFromObject(proto); const sz = new THREE.Vector3(); bb.getSize(sz);
+  const base = (cfg.targetH||2)/(sz.y||1);
+  const solid = cfg.solid !== false;
+  const rProto = (solid && cfg.r==null) ? footprintRadius(proto) : 0;
+  const src = cfg.r!=null ? `explicit r=${cfg.r}m` : `auto r=${(rProto*base).toFixed(2)}m`;
+  log.push(`${k.padEnd(5)} targetH=${cfg.targetH}m  model ${(sz.x*base).toFixed(1)}x${(sz.z*base).toFixed(1)}m  ${src}`);
+  for (const pt of cfg.at||[]){ const s=base*(pt.s||1);
+    const rm = solid ? (cfg.r!=null ? cfg.r*(pt.s||1) : rProto*s) : 0;
+    circles.push({k, x:pt.x, y:pt.y, r:rm/S}); }
+}
+log.push('', `${circles.length} colliders placed. Player pad = 12 game units.`);
+// clearance checks: spawns, relics and extraction zones must not sit inside a prop
+const PAD=12;
+const bad=[];
+const check=(label,x,y,need)=>{ for(const c of circles){ const d=Math.hypot(x-c.x,y-c.y);
+  if(d < c.r+need) bad.push(`${label} (${x},${y}) is ${d.toFixed(0)} from ${c.k}(${c.x},${c.y}) r=${c.r.toFixed(0)} -> needs ${(c.r+need).toFixed(0)}`); } };
+MAP.spawns.forEach((p,i)=>check('spawn'+i,p.x,p.y,PAD+10));
+MAP.relics.forEach((p,i)=>check('relic'+i,p.x,p.y,PAD));
+MAP.zones.forEach((p,i)=>check('zone'+i,p.x,p.y,PAD));
+log.push(bad.length? 'CLEARANCE PROBLEMS:\n  '+bad.join('\n  ') : 'clearance OK: no spawn, relic or extraction zone sits inside a collider');
+log.push('', 'collider list (game units):');
+for(const c of circles) log.push(`  ${c.k.padEnd(5)} (${String(c.x).padStart(4)},${String(c.y).padStart(3)})  r=${c.r.toFixed(1)}`);
+document.getElementById('out').textContent=log.join('\n');
+window.__COLLIDE__=log.join('\n');
+</script></body></html>

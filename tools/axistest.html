@@ -1,0 +1,29 @@
+<!doctype html><html><head><meta charset="utf-8"><title>camera axis test</title>
+<script type="importmap">{"imports":{"three":"/node_modules/three/build/three.module.js"}}</script>
+</head><body><pre id="out">…</pre><script type="module">
+import * as THREE from 'three';
+// reproduce main.js's third-person camera exactly
+const ya=0.4, pitch=0.42, dist=5.0;
+const tgt=new THREE.Vector3(0,1.4,0);
+const cam=new THREE.PerspectiveCamera(60,16/9,0.1,500);
+cam.position.set(tgt.x - Math.sin(ya)*Math.cos(pitch)*dist,
+                 tgt.y + Math.sin(pitch)*dist + 1.0,
+                 tgt.z - Math.cos(ya)*Math.cos(pitch)*dist);
+cam.lookAt(tgt); cam.updateMatrixWorld(true);
+const ndcX = v => { const p=v.clone().project(cam); return +p.x.toFixed(3); };
+const ndcY = v => { const p=v.clone().project(cam); return +p.y.toFixed(3); };
+// step 1 metre from the player in each candidate direction, see which way it lands on screen
+const probe=(name,dx,dz)=>`${name.padEnd(22)} world(${dx.toFixed(2)},${dz.toFixed(2)})  ndc.x=${ndcX(new THREE.Vector3(tgt.x+dx,tgt.y,tgt.z+dz))}  (ndc.x>0 = right of screen)`;
+const lines=[
+ probe('FIXED  D strafe',  -Math.cos(ya),  Math.sin(ya)),
+ probe('OLD    D strafe',   Math.cos(ya), -Math.sin(ya)),
+ probe('W forward',         Math.sin(ya),  Math.cos(ya)),
+];
+// yaw: does increasing ya swing the view left or right?
+const aim=y=>new THREE.Vector3(Math.sin(y),0,Math.cos(y));
+const far=y=>{const v=aim(y).multiplyScalar(30).add(tgt); return ndcX(v);};
+lines.push(`look point at ya=0.40 -> ndc.x=${far(0.40)}`);
+lines.push(`look point at ya=0.55 (ya INCREASED) -> ndc.x=${far(0.55)}   => increasing ya moves the aim ${far(0.55)<far(0.40)?'LEFT (so movementX must SUBTRACT)':'RIGHT (movementX must ADD)'}`);
+document.getElementById('out').textContent=lines.join('\n');
+window.__AXIS__=lines.join('\n');
+</script></body></html>

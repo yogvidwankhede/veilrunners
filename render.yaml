@@ -1,0 +1,12 @@
+# Render blueprint: the game page and the co-op relay in one web service,
+# built from the Dockerfile. https://render.com/deploy?repo=https://github.com/yogvidwankhede/veilrunners
+services:
+  - type: web
+    name: veilrunners
+    runtime: docker
+    plan: free
+    healthCheckPath: /healthz
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production

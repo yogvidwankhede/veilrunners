@@ -1,0 +1,32 @@
+<!doctype html><html><head><meta charset="utf-8"><title>footprint probe</title>
+<style>body{margin:0;background:#111;color:#8f8;font:12px ui-monospace,monospace}pre{padding:10px}</style>
+<script type="importmap">{"imports":{"three":"/node_modules/three/build/three.module.js","three/examples/jsm/":"/node_modules/three/examples/jsm/"}}</script>
+</head><body><pre id="out">…</pre><script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { S } from '/src/constants.js';
+const man = await (await fetch('/assets/manifest.json')).json();
+const load=u=>new Promise((res,rej)=>new GLTFLoader().load(u,res,undefined,rej));
+const out=[];
+for (const [k,cfg] of Object.entries(man.props||{})){
+  const g=await load('/assets/'+cfg.file), proto=g.scene;
+  proto.updateMatrixWorld(true);
+  const bb=new THREE.Box3().setFromObject(proto), sz=new THREE.Vector3(); bb.getSize(sz);
+  const base=(cfg.targetH||2)/(sz.y||1);
+  out.push(`\n=== ${k}  model box ${sz.x.toFixed(2)} x ${sz.y.toFixed(2)} x ${sz.z.toFixed(2)}  -> scaled ${(sz.x*base).toFixed(2)} x ${(sz.y*base).toFixed(2)} x ${(sz.z*base).toFixed(2)} m`);
+  const cx=(bb.min.x+bb.max.x)/2, cz=(bb.min.z+bb.max.z)/2;
+  for (const frac of [0.04,0.08,0.12,0.20,0.30]){
+    const cut=bb.min.y+sz.y*frac; const rs=[]; const v=new THREE.Vector3();
+    proto.traverse(o=>{ const pos=o.isMesh&&o.geometry&&o.geometry.attributes.position; if(!pos)return;
+      const st=Math.max(1,Math.floor(pos.count/6000));
+      for(let i=0;i<pos.count;i+=st){ v.fromBufferAttribute(pos,i).applyMatrix4(o.matrixWorld);
+        if(v.y>cut) continue; rs.push(Math.hypot(v.x-cx, v.z-cz)); } });
+    rs.sort((a,b)=>a-b);
+    const q=p=>rs.length? rs[Math.min(rs.length-1,Math.floor(rs.length*p))]*base : 0;
+    out.push(`  bottom ${(frac*100).toFixed(0).padStart(2)}%  n=${String(rs.length).padStart(5)}  `
+      +`p50=${q(0.5).toFixed(2)}m p75=${q(0.75).toFixed(2)}m p90=${q(0.90).toFixed(2)}m max=${q(0.999).toFixed(2)}m`
+      +`   (p75 -> ${(q(0.75)/S).toFixed(0)} game units)`);
+  }
+}
+document.getElementById('out').textContent=out.join('\n'); window.__P__=out.join('\n');
+</script></body></html>

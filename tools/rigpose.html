@@ -1,0 +1,50 @@
+<!doctype html><html><head><meta charset="utf-8"><title>walk cycle filmstrip</title>
+<style>body{margin:0;background:#1a1f1e}canvas{display:block}</style>
+<script type="importmap">{"imports":{
+  "three":"/node_modules/three/build/three.module.js",
+  "three/examples/jsm/":"/node_modules/three/examples/jsm/"}}</script>
+</head><body>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { attachWalkRig, makeWalkDriver } from '/src/walkrig.js';
+const Q=new URLSearchParams(location.search);
+const BIG=Q.has('big'), GAIT=+(Q.get('gait')||1);
+const N=BIG?4:8, CW=BIG?390:150, CH=BIG?640:330;
+const strip=document.createElement('canvas'); strip.width=CW*N; strip.height=CH*(BIG?2:3);
+document.body.appendChild(strip); const ctx=strip.getContext('2d');
+const r=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true,alpha:true});
+r.setSize(CW,CH); r.setPixelRatio(1); r.outputColorSpace=THREE.SRGBColorSpace;
+const scene=new THREE.Scene();
+scene.add(new THREE.HemisphereLight(0xffffff,0x334444,2.2));
+const d=new THREE.DirectionalLight(0xffffff,2.0); d.position.set(3,5,4); scene.add(d);
+const floor=new THREE.Mesh(new THREE.PlaneGeometry(6,6),new THREE.MeshBasicMaterial({color:0x2e4a46}));
+floor.rotation.x=-Math.PI/2; floor.position.y=-0.002; scene.add(floor);
+const cam=new THREE.PerspectiveCamera(32,CW/CH,0.1,50);
+new GLTFLoader().load('/assets/runner.glb', g=>{
+  const proto=g.scene;
+  const box=new THREE.Box3().setFromObject(proto),size=new THREE.Vector3(); box.getSize(size);
+  const h=size.y||1.9, scale=1.85/h, feet=box.min.y*scale;
+  const cx=(box.min.x+box.max.x)/2*scale, cz=(box.min.z+box.max.z)/2*scale;
+  const model=proto.clone(true); model.scale.setScalar(scale); model.position.set(-cx,-feet,-cz);
+  const wrap=new THREE.Group(); wrap.add(model); scene.add(wrap);
+  const rig=attachWalkRig(model);
+  const drive=makeWalkDriver(rig,wrap,(rig.vrHipY.value-rig.vrFootY.value)*scale);
+  // row 0: run (gait 1, side) | row 1: walk (gait 0.45, side) | row 2: run (front)
+  const rows=BIG
+    ? [{g:GAIT, v:[4.0,0.95,0.2], tag:'side '}, {g:GAIT, v:[0.2,0.95,4.0], tag:'front'}]
+    : [{g:1,    v:[4.6,0.95,0.3], tag:'run  '},
+       {g:0.45, v:[4.6,0.95,0.3], tag:'walk '},
+       {g:1,    v:[0.3,0.95,4.6], tag:'front'}];
+  rows.forEach((rw,row)=>{
+    cam.position.set(...rw.v); cam.lookAt(0,0.9,0);
+    for(let i=0;i<N;i++){ const ph=i/N*Math.PI*2;
+      for(let k=0;k<160;k++) drive(ph,rw.g,false);   // converge the gait lerp
+      r.render(scene,cam);
+      ctx.drawImage(r.domElement,i*CW,row*CH);
+      ctx.fillStyle='#9fe'; ctx.font='12px monospace';
+      ctx.fillText(rw.tag+' φ='+(i/N*360).toFixed(0)+'°', i*CW+8, row*CH+18); }
+  });
+  window.__DONE__=true;
+});
+</script></body></html>

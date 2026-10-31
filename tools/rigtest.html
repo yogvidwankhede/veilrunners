@@ -1,0 +1,71 @@
+<!doctype html><html><head><meta charset="utf-8"><title>walkrig test</title>
+<style>body{margin:0;background:#111;color:#8f8;font:13px ui-monospace,monospace}#out{padding:10px;white-space:pre}</style>
+<script type="importmap">{"imports":{
+  "three":"/node_modules/three/build/three.module.js",
+  "three/examples/jsm/":"/node_modules/three/examples/jsm/"}}</script>
+</head><body><div id="out">running…</div>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { attachWalkRig, makeWalkDriver } from '/src/walkrig.js';
+
+const errs=[]; const ce=console.error; console.error=(...a)=>{errs.push(a.join(' ')); ce(...a);};
+const W=256,H=256;
+const renderer=new THREE.WebGLRenderer({antialias:false,preserveDrawingBuffer:true});
+renderer.setSize(W,H); renderer.setPixelRatio(1);
+const scene=new THREE.Scene(); scene.background=new THREE.Color(0x000000);
+scene.add(new THREE.AmbientLight(0xffffff,3));
+const cam=new THREE.PerspectiveCamera(35,1,0.1,50);
+const log=[]; const out=document.getElementById('out');
+const shot=()=>{ renderer.render(scene,cam); const gl=renderer.getContext();
+  const px=new Uint8Array(W*H*4); gl.readPixels(0,0,W,H,gl.RGBA,gl.UNSIGNED_BYTE,px); return px; };
+const diff=(a,b)=>{let n=0;for(let i=0;i<a.length;i+=4){if(Math.abs(a[i]-b[i])+Math.abs(a[i+1]-b[i+1])+Math.abs(a[i+2]-b[i+2])>12)n++;}return n;};
+const lit=a=>{let n=0;for(let i=0;i<a.length;i+=4){if(a[i]+a[i+1]+a[i+2]>30)n++;}return n;};
+const lowest=a=>{for(let y=0;y<H;y++)for(let x=0;x<W;x++){const i=(y*W+x)*4;if(a[i]+a[i+1]+a[i+2]>30)return y;}return -1;};
+const highest=a=>{for(let y=H-1;y>=0;y--)for(let x=0;x<W;x++){const i=(y*W+x)*4;if(a[i]+a[i+1]+a[i+2]>30)return y;}return -1;};
+const bandSpan=(a,lo,hi)=>{let mn=1e9,mx=-1e9,c=0;
+  for(let y=Math.floor(H*lo);y<Math.floor(H*hi);y++)for(let x=0;x<W;x++){const i=(y*W+x)*4;
+    if(a[i]+a[i+1]+a[i+2]>30){c++;if(x<mn)mn=x;if(x>mx)mx=x;}} return {c,span:c?mx-mn:0};};
+
+new GLTFLoader().load('/assets/runner.glb', g=>{
+  const proto=g.scene;
+  // mirror exactly what Game.upgradeRunners does
+  const box=new THREE.Box3().setFromObject(proto); const size=new THREE.Vector3(); box.getSize(size);
+  const h=size.y||1.9, scale=1.85/h, feet=box.min.y*scale;
+  const cx=(box.min.x+box.max.x)/2*scale, cz=(box.min.z+box.max.z)/2*scale;
+  const model=proto.clone(true); model.scale.setScalar(scale); model.position.set(-cx,-feet,-cz);
+  const wrap=new THREE.Group(); wrap.add(model); scene.add(wrap);
+  const rig=attachWalkRig(model);
+  const legLen=(rig.vrHipY.value-rig.vrFootY.value)*scale;
+  const drive=makeWalkDriver(rig, wrap, legLen);
+  log.push(`landmarks(rig units): foot=${rig.vrFootY.value.toFixed(3)} knee=${rig.vrKneeY.value.toFixed(3)} hip=${rig.vrHipY.value.toFixed(3)} top=${rig.vrTopY.value.toFixed(3)} legSep=${rig.vrLegSep.value.toFixed(3)}`);
+  log.push(`legLen(world) = ${legLen.toFixed(3)} m`);
+
+  cam.position.set(4.2,0.9,0); cam.lookAt(0,0.9,0);   // side view
+  const settle=(ph,sp,cr)=>{ for(let i=0;i<80;i++) drive(ph,sp,cr); };   // let the lerps converge
+
+  // phase +-pi/2 are the ground-CONTACT poses: the forward foot must be planted.
+  // phase 0 / pi are the passing poses, where a run legitimately leaves the floor.
+  settle(0,0,false);            const rest=shot();
+  settle(Math.PI/2,1,false);    const cA  =shot();
+  settle(-Math.PI/2,1,false);   const cB  =shot();
+  settle(0,1,false);            const pass=shot();
+  settle(Math.PI/2,0.45,false); const wlk =shot();
+  settle(0,0,true);             const duck=shot();
+
+  const px = 2.65/H;   // metres per pixel row, from the camera framing
+  log.push('lit px  rest/contactA/contactB/pass : '+[rest,cA,cB,pass].map(lit).join(' / '));
+  log.push('changed rest->contactA / A->B / rest->pass : '+[diff(rest,cA),diff(cA,cB),diff(rest,pass)].join(' / '));
+  const soles=[rest,cA,cB].map(lowest);
+  log.push(`FEET lowest row rest/contactA/contactB = ${soles.join(" / ")}  -> contact error `
+    +`${(Math.max(...soles)-Math.min(...soles)).toFixed(0)}px = ${((Math.max(...soles)-Math.min(...soles))*px*100).toFixed(1)}cm  (want < 5cm)`);
+  log.push(`PASS lowest row ${lowest(pass)} (above contact = flight phase, expected at a run)`);
+  log.push(`WALK lowest row ${lowest(wlk)} vs rest ${lowest(rest)}  (a walk must stay planted)`);
+  log.push('HEAD highest row rest/contactA/pass: '+[rest,cA,pass].map(highest).join(' / '));
+  for(const [nm,p] of [['rest',rest],['contactA',cA],['contactB',cB],['pass',pass],['walk',wlk]]){
+    const s=bandSpan(p,0.10,0.28); log.push(`shin band ${nm.padEnd(9)}: lit=${String(s.c).padStart(4)} span=${s.span}px`); }
+  log.push('CROUCH highest row '+highest(duck)+' vs rest '+highest(rest)+' (must be lower), lowest '+lowest(duck)+' vs '+lowest(rest));
+  log.push('console errors: '+(errs.length? JSON.stringify(errs.slice(0,3)) : 'none'));
+  out.textContent=log.join('\n'); window.__RIGTEST__=log.join('\n');
+}, undefined, e=>{ out.textContent='GLB load failed: '+e; window.__RIGTEST__='LOAD FAIL'; });
+</script></body></html>

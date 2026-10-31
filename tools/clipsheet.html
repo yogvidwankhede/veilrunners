@@ -1,0 +1,43 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Clip sheet</title>
+<style>body{margin:0;background:#1a1f1e;color:#cfc;font:11px ui-monospace,monospace}canvas{display:block}</style>
+<script type="importmap">{"imports":{"three":"/node_modules/three/build/three.module.js","three/examples/jsm/":"/node_modules/three/examples/jsm/"}}</script>
+</head><body><script type="module">
+// Every traversal clip, side-on, sampled across its length: the raw poses the
+// animation layer has to work with. ?clips=jump,falling&n=10
+import * as THREE from 'three';
+import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
+const q = new URLSearchParams(location.search);
+const NAMES = (q.get('clips') || 'jump,falling,hangGrab,hangIdle,climbTop').split(',');
+const FILES = { jump:'jump', falling:'falling', hangGrab:'hang-grab', hangIdle:'hang-idle', climbTop:'climb-top', climbUp:'climb-up', hangDrop:'hang-drop', run:'running', idle:'breathing-idle' };
+const N = +(q.get('n') || 10), CW = 150, CH = 230;
+const load = u => new FBXLoader().loadAsync(u);
+const base = await load('/assets/anim/breathing-idle.fbx');
+const sc = 1; base.scale.setScalar(sc); base.traverse(o => { if (o.isMesh) o.frustumCulled = false; });
+const clips = {};
+for (const k of NAMES) clips[k] = (await load(`/assets/anim/${FILES[k]}.fbx`)).animations[0];
+const r = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+r.setSize(N * CW, NAMES.length * CH); r.setScissorTest(true); document.body.appendChild(r.domElement);
+const scene = new THREE.Scene(); scene.background = new THREE.Color(0x2a302e);
+scene.add(new THREE.HemisphereLight(0xffffff, 0x445544, 2.2)); const d = new THREE.DirectionalLight(0xffffff, 1.5); d.position.set(3, 4, 2); scene.add(d);
+scene.add(base);
+const floor = new THREE.GridHelper(4, 8, 0x667766, 0x445544); scene.add(floor);
+const cam = new THREE.PerspectiveCamera(30, CW / CH, 0.1, 50);
+const mixer = new THREE.AnimationMixer(base);
+const hips = (() => { let h; base.traverse(o => { if (!h && o.isBone && /hips$/i.test(o.name)) h = o; }); return h; })();
+const v = new THREE.Vector3();
+NAMES.forEach((k, row) => {
+  mixer.stopAllAction(); const a = mixer.clipAction(clips[k]); a.play();
+  for (let i = 0; i < N; i++) {
+    const t = clips[k].duration * i / (N - 1) * 0.999;
+    a.time = t; mixer.update(0); base.updateMatrixWorld(true);
+    hips.getWorldPosition(v);
+    cam.position.set(v.x + 4.2, v.y + 0.2, v.z); cam.lookAt(v.x, v.y, v.z);   // side-on, from +x
+    const x = i * CW, y = (NAMES.length - 1 - row) * CH;
+    r.setViewport(x, y, CW, CH); r.setScissor(x, y, CW, CH); r.render(scene, cam);
+  }
+});
+const lab = document.createElement('pre'); lab.style.cssText = 'position:absolute;top:0;left:0;margin:0';
+lab.textContent = NAMES.map((k, i) => `\n`.repeat(i ? 1 : 0) + `${k} ${clips[k].duration.toFixed(2)}s`).join('');
+NAMES.forEach((k, i) => { const s = document.createElement('div'); s.textContent = `${k} ${clips[k].duration.toFixed(2)}s`; s.style.cssText = `position:absolute;left:4px;top:${i * CH + 2}px`; document.body.appendChild(s); });
+let info=[]; base.traverse(o=>{ if(o.isSkinnedMesh) info.push(o.name+" verts "+o.geometry.attributes.position.count+" mat "+[].concat(o.material).map(m=>m.type+"/"+m.opacity+"/"+m.visible).join(",")); }); console.log("hips", v.toArray().map(n=>n.toFixed(2)).join(","), info.join(" | ")); window.__done = true;
+</script></body></html>

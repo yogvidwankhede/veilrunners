@@ -1,0 +1,775 @@
+{
+ "pillar": {
+  "file": "pillar.glb",
+  "targetH": 2.55,
+  "r": 0.75,
+  "hides": [
+   "pillar"
+  ],
+  "fit": true,
+  "at": [
+   {
+    "x": 580,
+    "y": 230,
+    "z": 5
+   },
+   {
+    "x": 730,
+    "y": 230,
+    "z": 5
+   },
+   {
+    "x": 580,
+    "y": 454,
+    "z": 5
+   },
+   {
+    "x": 730,
+    "y": 454,
+    "z": 5
+   },
+   {
+    "x": 110,
+    "y": 186,
+    "z": 0,
+    "r": 0.44
+   },
+   {
+    "x": 110,
+    "y": 696,
+    "z": 0
+   },
+   {
+    "x": 268,
+    "y": 696,
+    "z": 0
+   },
+   {
+    "x": 268,
+    "y": 186,
+    "z": 0
+   }
+  ]
+ },
+ "wall_block": {
+  "file": "wall_block.glb",
+  "targetH": 1.5,
+  "r": 1.35,
+  "at": [
+   {
+    "x": 359,
+    "y": 250,
+    "z": 0,
+    "ry": 0
+   },
+   {
+    "x": 359,
+    "y": 420,
+    "z": 0,
+    "ry": 0
+   },
+   {
+    "x": 359,
+    "y": 590,
+    "z": 0,
+    "ry": 0
+   },
+   {
+    "x": 359,
+    "y": 760,
+    "z": 0,
+    "ry": 0
+   }
+  ]
+ },
+ "brazier_a": {
+  "file": "brazier.glb",
+  "targetH": 1.5,
+  "solid": true,
+  "r": 1.36,
+  "at": [
+   {
+    "x": 880,
+    "y": 580,
+    "z": 7.5
+   }
+  ]
+ },
+ "brazier_b": {
+  "file": "brazier.glb",
+  "targetH": 1.5,
+  "solid": true,
+  "r": 1.36,
+  "at": [
+   {
+    "x": 970,
+    "y": 580,
+    "z": 7.5
+   }
+  ]
+ },
+ "brazier_c": {
+  "file": "brazier.glb",
+  "targetH": 1.5,
+  "solid": true,
+  "r": 1.36,
+  "at": [
+   {
+    "x": 1060,
+    "y": 580,
+    "z": 7.5
+   }
+  ]
+ },
+ "wall_lamp": {
+  "file": "wall_lamp.glb",
+  "targetH": 0.95,
+  "solid": false,
+  "override": "lamps",
+  "wallMounted": true,
+  "at": [
+   {
+    "x": 151,
+    "y": 222,
+    "z": 1.55,
+    "ry": 1.5707963267948966
+   },
+   {
+    "x": 151,
+    "y": 660,
+    "z": 1.55,
+    "ry": 1.5707963267948966
+   },
+   {
+    "x": 325,
+    "y": 420,
+    "z": 1.55,
+    "ry": -1.5707963267948966
+   },
+   {
+    "x": 151,
+    "y": 170,
+    "z": 1.55,
+    "ry": 1.5707963267948966
+   },
+   {
+    "x": 325,
+    "y": 194,
+    "z": 4.05,
+    "ry": -1.5707963267948966
+   },
+   {
+    "x": 465,
+    "y": 100,
+    "z": 4.05,
+    "ry": -1.5707963267948966
+   },
+   {
+    "x": 555,
+    "y": 200,
+    "z": 6.55,
+    "ry": -1.5707963267948966
+   },
+   {
+    "x": 759,
+    "y": 206,
+    "z": 6.55,
+    "ry": 1.5707963267948966
+   },
+   {
+    "x": 551,
+    "y": 470,
+    "z": 6.55,
+    "ry": -1.5707963267948966
+   },
+   {
+    "x": 759,
+    "y": 470,
+    "z": 6.55,
+    "ry": 1.5707963267948966
+   },
+   {
+    "x": 706,
+    "y": 425,
+    "z": 6.55,
+    "ry": 3.141592653589793
+   },
+   {
+    "x": 811,
+    "y": 330,
+    "z": 6.55,
+    "ry": 1.5707963267948966
+   },
+   {
+    "x": 811,
+    "y": 420,
+    "z": 6.55,
+    "ry": 1.5707963267948966
+   },
+   {
+    "x": 1085,
+    "y": 336,
+    "z": 6.55,
+    "ry": -1.5707963267948966
+   },
+   {
+    "x": 1085,
+    "y": 404,
+    "z": 6.55,
+    "ry": -1.5707963267948966
+   },
+   {
+    "x": 1155,
+    "y": 270,
+    "z": 9.05,
+    "ry": -1.5707963267948966
+   },
+   {
+    "x": 1155,
+    "y": 520,
+    "z": 9.05,
+    "ry": -1.5707963267948966
+   },
+   {
+    "x": 795,
+    "y": 536,
+    "z": 9.05,
+    "ry": 1.5707963267948966
+   },
+   {
+    "x": 860,
+    "y": 795,
+    "z": 9.05,
+    "ry": 3.141592653589793
+   },
+   {
+    "x": 1080,
+    "y": 795,
+    "z": 9.05,
+    "ry": 3.141592653589793
+   },
+   {
+    "x": 865,
+    "y": 760,
+    "z": 6.7,
+    "ry": 1.5707963267948966
+   },
+   {
+    "x": 815,
+    "y": 650,
+    "z": 6.55,
+    "ry": -1.5707963267948966
+   }
+  ],
+  "allowWalkThrough": "a sconce bracketed to a wall that already blocks you"
+ },
+ "floor_lamp": {
+  "file": "floor_lamp.glb",
+  "targetH": 1.75,
+  "r": 0.42,
+  "at": [
+   {
+    "x": 596,
+    "y": 652,
+    "z": 4.3,
+    "ry": 0
+   },
+   {
+    "x": 485,
+    "y": 699,
+    "z": 2.5,
+    "ry": 0
+   },
+   {
+    "x": 338,
+    "y": 520,
+    "z": 5,
+    "ry": 0
+   }
+  ]
+ },
+ "glyph_wall": {
+  "file": "glyph_wall.glb",
+  "targetH": 1.7,
+  "solid": false,
+  "at": [
+   {
+    "x": 96,
+    "y": 330,
+    "z": 0,
+    "ry": 0,
+    "solid": true,
+    "r": 0.45
+   },
+   {
+    "x": 580,
+    "y": 131.5,
+    "z": 5,
+    "ry": 3.141592653589793,
+    "solid": false
+   },
+   {
+    "x": 1157.5,
+    "y": 300,
+    "z": 7.5,
+    "ry": -1.5707963267948966,
+    "solid": false
+   }
+  ],
+  "note": "two are set flush into walls (no collider wanted, you must stand close to read them); the hall one is freestanding and carries its own"
+ },
+ "lever_cw_a": {
+  "file": "lever.glb",
+  "targetH": 1.4,
+  "r": 0.858,
+  "at": [
+   {
+    "x": 592,
+    "y": 404,
+    "z": 5,
+    "ry": 0
+   }
+  ]
+ },
+ "lever_cw_b": {
+  "file": "lever.glb",
+  "targetH": 1.4,
+  "r": 0.858,
+  "at": [
+   {
+    "x": 724,
+    "y": 404,
+    "z": 5,
+    "ry": 3.141592653589793
+   }
+  ]
+ },
+ "lever_crane": {
+  "file": "lever.glb",
+  "targetH": 1.4,
+  "r": 0.858,
+  "at": [
+   {
+    "x": 1012,
+    "y": 400,
+    "z": 5
+   }
+  ]
+ },
+ "tile_a": {
+  "file": "crush_pillar.glb",
+  "targetH": 0.85,
+  "solid": false,
+  "hides": [
+   "tile_a"
+  ],
+  "fit": true,
+  "at": [
+   {
+    "x": 865,
+    "y": 370,
+    "z": 4.15,
+    "ry": 0
+   }
+  ]
+ },
+ "tile_b": {
+  "file": "crush_pillar.glb",
+  "targetH": 0.85,
+  "solid": false,
+  "hides": [
+   "tile_b"
+  ],
+  "fit": true,
+  "at": [
+   {
+    "x": 915,
+    "y": 370,
+    "z": 4.15,
+    "ry": 0
+   }
+  ]
+ },
+ "tile_c": {
+  "file": "crush_pillar.glb",
+  "targetH": 0.85,
+  "solid": false,
+  "hides": [
+   "tile_c"
+  ],
+  "fit": true,
+  "at": [
+   {
+    "x": 965,
+    "y": 370,
+    "z": 4.15,
+    "ry": 0
+   }
+  ]
+ },
+ "crane_arm": {
+  "file": "crane.glb",
+  "targetH": 0.7,
+  "solid": false,
+  "hides": [
+   "crane_arm"
+  ],
+  "fit": true,
+  "at": [
+   {
+    "x": 1060,
+    "y": 370,
+    "z": 4.3,
+    "ry": 0
+   }
+  ]
+ },
+ "bridge_main": {
+  "file": "stair_block.glb",
+  "targetH": 0.8,
+  "solid": false,
+  "hides": [
+   "bridge_main"
+  ],
+  "fit": true,
+  "at": [
+   {
+    "x": 440,
+    "y": 462,
+    "z": 4.2,
+    "ry": 0
+   }
+  ]
+ },
+ "door_sanctum": {
+  "file": "door_slab.glb",
+  "targetH": 2,
+  "solid": false,
+  "hides": [
+   "door_sanctum"
+  ],
+  "at": [
+   {
+    "x": 983,
+    "y": 680,
+    "z": 5.6,
+    "ry": 0
+   }
+  ]
+ },
+ "door_front": {
+  "file": "door_slab.glb",
+  "targetH": 4.8,
+  "solid": false,
+  "hides": [
+   "door_front"
+  ],
+  "at": [
+   {
+    "x": 53,
+    "y": 455,
+    "z": 0.20000000000000018,
+    "ry": 1.5707963267948966
+   }
+  ]
+ },
+ "drum": {
+  "file": "drum.glb",
+  "targetH": 2,
+  "r": 1.8,
+  "at": [
+   {
+    "x": 655,
+    "y": 335,
+    "z": 6.05
+   }
+  ]
+ },
+ "plinth": {
+  "file": "plinth.glb",
+  "targetH": 0.4,
+  "solid": false,
+  "hides": [
+   "plinth"
+  ],
+  "at": [
+   {
+    "x": 983,
+    "y": 680,
+    "z": 5.6
+   }
+  ]
+ },
+ "rubble_1": {
+  "file": "rubble.glb",
+  "targetH": 5,
+  "solid": false,
+  "hides": [
+   "rubble_1"
+  ],
+  "fit": true,
+  "at": [
+   {
+    "x": 775,
+    "y": 650,
+    "z": 0
+   }
+  ]
+ },
+ "rubble_2": {
+  "file": "rubble.glb",
+  "targetH": 4.3,
+  "solid": false,
+  "hides": [
+   "rubble_2"
+  ],
+  "fit": true,
+  "at": [
+   {
+    "x": 632,
+    "y": 685,
+    "z": 0
+   }
+  ]
+ },
+ "rubble_3": {
+  "file": "rubble.glb",
+  "targetH": 2.5,
+  "solid": false,
+  "hides": [
+   "rubble_3"
+  ],
+  "fit": true,
+  "at": [
+   {
+    "x": 497,
+    "y": 735,
+    "z": 0
+   }
+  ]
+ },
+ "rubble_4": {
+  "file": "rubble.glb",
+  "targetH": 2.1,
+  "solid": false,
+  "hides": [
+   "rubble_4"
+  ],
+  "fit": true,
+  "at": [
+   {
+    "x": 405,
+    "y": 785,
+    "z": 0
+   }
+  ]
+ },
+ "winch": {
+  "file": "winch.glb",
+  "targetH": 1.5,
+  "r": 0.62,
+  "at": [
+   {
+    "x": 802,
+    "y": 332,
+    "z": 5
+   }
+  ]
+ },
+ "remains": {
+  "file": "remains.glb",
+  "targetH": 0.55,
+  "r": 1.878,
+  "at": [
+   {
+    "x": 1004,
+    "y": 350,
+    "z": 5,
+    "s": 0.55
+   },
+   {
+    "x": 240,
+    "y": 700,
+    "z": 0
+   }
+  ]
+ },
+ "urn": {
+  "file": "urn.glb",
+  "targetH": 0.95,
+  "r": 0.855,
+  "at": [
+   {
+    "x": 770,
+    "y": 250,
+    "z": 5
+   },
+   {
+    "x": 1040,
+    "y": 760,
+    "z": 5.6
+   }
+  ]
+ },
+ "gate": {
+  "file": "gate.glb",
+  "targetH": 3.6,
+  "solid": false,
+  "wallMounted": true,
+  "allowWalkThrough": "set into the 5 m inner wall, which already blocks you",
+  "at": [
+   {
+    "x": 352,
+    "y": 300,
+    "z": 0,
+    "ry": 1.5707963267948966
+   }
+  ]
+ },
+ "rope": {
+  "file": "rope.glb",
+  "targetH": 2.5,
+  "solid": false,
+  "allowWalkThrough": "a hanging rope, pushed aside not walked into",
+  "at": [
+   {
+    "x": 404,
+    "y": 168,
+    "z": 2.5
+   },
+   {
+    "x": 884,
+    "y": 700,
+    "z": 5.6
+   }
+  ]
+ },
+ "chain": {
+  "file": "chain.glb",
+  "targetH": 4.6,
+  "solid": false,
+  "wallMounted": true,
+  "allowWalkThrough": "hangs from the vault, well above head height",
+  "at": [
+   {
+    "x": 600,
+    "y": 250,
+    "z": 7.2
+   },
+   {
+    "x": 1000,
+    "y": 620,
+    "z": 8
+   }
+  ]
+ },
+ "banner": {
+  "file": "banner.glb",
+  "targetH": 1.8,
+  "solid": false,
+  "wallMounted": true,
+  "allowWalkThrough": "cloth hanging on a wall",
+  "at": [
+   {
+    "x": 852,
+    "y": 700,
+    "z": 5.9,
+    "ry": 1.5707963267948966
+   },
+   {
+    "x": 1100,
+    "y": 420,
+    "z": 6,
+    "ry": 1.5707963267948966
+   }
+  ]
+ },
+ "spikes": {
+  "file": "spikes.glb",
+  "targetH": 0.7,
+  "solid": false,
+  "inPitByDesign": true,
+  "allowWalkThrough": "lies at the bottom of a pit that is already fatal",
+  "at": [
+   {
+    "x": 440,
+    "y": 420,
+    "z": 0
+   },
+   {
+    "x": 440,
+    "y": 640,
+    "z": 0
+   },
+   {
+    "x": 915,
+    "y": 370,
+    "z": 0
+   }
+  ]
+ },
+ "rubble": {
+  "file": "rubble.glb",
+  "targetH": 1.25,
+  "r": 1.1,
+  "at": [
+   {
+    "x": 180,
+    "y": 620,
+    "z": 0
+   },
+   {
+    "x": 286,
+    "y": 480,
+    "z": 0
+   },
+   {
+    "x": 120,
+    "y": 480,
+    "z": 0
+   },
+   {
+    "x": 285,
+    "y": 620,
+    "z": 0
+   },
+   {
+    "x": 170,
+    "y": 760,
+    "z": 0
+   },
+   {
+    "x": 240,
+    "y": 250,
+    "z": 0
+   },
+   {
+    "x": 660,
+    "y": 180,
+    "z": 5
+   },
+   {
+    "x": 650,
+    "y": 480,
+    "z": 5
+   },
+   {
+    "x": 900,
+    "y": 770,
+    "z": 5.6
+   }
+  ]
+ },
+ "lever_crane_far": {
+  "file": "lever.glb",
+  "targetH": 1.4,
+  "r": 0.858,
+  "at": [
+   {
+    "x": 1104,
+    "y": 440,
+    "z": 7.5
+   }
+  ]
+ }
+}

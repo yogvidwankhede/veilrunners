@@ -1,0 +1,6 @@
+{ "_comment":"Auto-written by tools/generate-meshy.mjs. runner/relic swap the character+relic; props add/replace environment. override:'trees'|'bushes' hides the procedural versions.",
+  "runner":"runner.glb", "relic":"relic.glb",
+  "props":{ "tree":{"file":"tree.glb","override":"trees","at":[{"x":60,"y":120,"s":1.1,"ry":0.4}]},
+            "torch":{"file":"torch.glb","y":1.4,"at":[{"x":1200,"y":375}]},
+            "fern":{"file":"fern.glb","override":"bushes","at":[{"x":147,"y":480}]},
+            "ruin":{"file":"ruin.glb","at":[{"x":300,"y":300,"s":1,"ry":0.4}]} } }

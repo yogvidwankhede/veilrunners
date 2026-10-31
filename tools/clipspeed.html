@@ -1,0 +1,53 @@
+<!doctype html><html><head><meta charset="utf-8"><title>clip natural speed</title>
+<style>body{margin:0;background:#1a1f1e;color:#8f8;font:12px ui-monospace,monospace}pre{padding:10px}</style>
+<script type="importmap">{"imports":{"three":"/node_modules/three/build/three.module.js","three/examples/jsm/":"/node_modules/three/examples/jsm/"}}</script>
+</head><body><pre id="out">measuring…</pre><script type="module">
+import * as THREE from 'three';
+import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
+const log=[];
+const load=u=>new FBXLoader().loadAsync(u);
+
+// An in-place clip carries no root motion, so its intended travel speed has to be
+// recovered from the feet: during stance a foot slides backward exactly as fast as
+// the character would move forward. Stride = the foot's forward range over a cycle.
+const base = await load('/assets/anim/breathing-idle.fbx');
+let skin=null; base.traverse(o=>{ if(o.isSkinnedMesh && !skin) skin=o; });
+const bb=new THREE.Box3().setFromObject(base); const h=bb.max.y-bb.min.y;
+log.push(`rig height ${h.toFixed(3)} m`);
+const byName={}; skin.skeleton.bones.forEach(b=>byName[b.name]=b);
+log.push(`bones: ${skin.skeleton.bones.map(b=>b.name.replace('mixamorig','')).join(' ')}`);
+
+const feet=['mixamorigLeftFoot','mixamorigRightFoot'].filter(n=>byName[n]);
+const hips = byName['mixamorigHips'];
+const mixer=new THREE.AnimationMixer(base);
+
+function measure(clip){
+  const act=mixer.clipAction(clip); mixer.stopAllAction(); act.reset().play();
+  const N=60; const rel={}; feet.forEach(f=>rel[f]=[]);
+  const wp=new THREE.Vector3(), hp=new THREE.Vector3();
+  for(let i=0;i<N;i++){
+    mixer.setTime(0); mixer.update(clip.duration*i/N);
+    base.updateMatrixWorld(true);
+    hips.getWorldPosition(hp);
+    for(const f of feet){ byName[f].getWorldPosition(wp); rel[f].push(wp.z-hp.z); }
+  }
+  // widest forward swing of either foot, relative to the hips
+  let range=0;
+  for(const f of feet){ const a=rel[f]; range=Math.max(range, Math.max(...a)-Math.min(...a)); }
+  // one Mixamo locomotion clip is a full cycle = two steps
+  const cycleDistance = range*2;
+  return { range:+range.toFixed(3), cycleDistance:+cycleDistance.toFixed(3),
+           duration:+clip.duration.toFixed(3), mps:+(cycleDistance/clip.duration).toFixed(2) };
+}
+
+for (const [name,url] of [['walk','/assets/anim/walking.fbx'],['run','/assets/anim/running.fbx'],['crouchWalk','/assets/anim/crouch-walk.fbx']]){
+  const g=await load(url); const c=g.animations[0];
+  const m=measure(c);
+  log.push(`${name.padEnd(5)} duration ${m.duration}s  foot range ${m.range} m  cycle ${m.cycleDistance} m  -> natural ${m.mps} m/s`);
+}
+log.push('');
+log.push('game speeds: crouch 3.30, normal 4.95, sprint 6.88 m/s');
+log.push('timeScale needed = gameSpeed / clipNaturalSpeed');
+document.getElementById('out').textContent=log.join('\n');
+window.__SPD__=log.join('\n');
+</script></body></html>

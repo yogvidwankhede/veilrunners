@@ -1,0 +1,60 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Mixamo FBX check</title>
+<style>body{margin:0;background:#1a1f1e;color:#8f8;font:12px ui-monospace,monospace}#out{padding:8px;white-space:pre}</style>
+<script type="importmap">{"imports":{"three":"/node_modules/three/build/three.module.js","three/examples/jsm/":"/node_modules/three/examples/jsm/"}}</script>
+</head><body><pre id="out">loading…</pre><script type="module">
+import * as THREE from 'three';
+import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
+const log=[], out=document.getElementById('out');
+const W=260,H=460, N=5;
+const strip=document.createElement('canvas'); strip.width=W*N; strip.height=H;
+document.body.appendChild(strip); const ctx=strip.getContext('2d');
+const r=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true}); r.setSize(W,H); r.setPixelRatio(1);
+r.outputColorSpace=THREE.SRGBColorSpace;
+const scene=new THREE.Scene(); scene.background=new THREE.Color(0x222a28);
+scene.add(new THREE.HemisphereLight(0xffffff,0x334455,2.4));
+const dl=new THREE.DirectionalLight(0xffffff,2.0); dl.position.set(3,6,4); scene.add(dl);
+scene.add(new THREE.GridHelper(400,20,0x446655,0x334444));
+const cam=new THREE.PerspectiveCamera(32,W/H,0.1,2000);
+try{
+  const obj = await new FBXLoader().loadAsync('/assets/anim/breathing-idle.fbx');
+  const bb=new THREE.Box3().setFromObject(obj), sz=new THREE.Vector3(); bb.getSize(sz);
+  let skinned=0, bones=0, meshes=0, mats=new Set(), tex=0;
+  let skel=null;
+  obj.traverse(o=>{ if(o.isSkinnedMesh){ skinned++; skel=o.skeleton; }
+    if(o.isMesh){ meshes++; for(const m of (Array.isArray(o.material)?o.material:[o.material])){ mats.add(m.type); if(m.map) tex++; } }
+    if(o.isBone) bones++; });
+  log.push(`FBX loaded. root "${obj.name||'(unnamed)'}"`);
+  log.push(`bbox ${sz.x.toFixed(1)} x ${sz.y.toFixed(1)} x ${sz.z.toFixed(1)}  (Mixamo exports in cm, so ~190 tall = 1.9 m)`);
+  log.push(`meshes=${meshes}  skinnedMeshes=${skinned}  bones=${bones}  materials=${[...mats].join(',')}  withTexture=${tex}`);
+  log.push(`skeleton bones = ${skel? skel.bones.length : 0}`);
+  if(skel) log.push(`  first bones: ${skel.bones.slice(0,6).map(b=>b.name).join(', ')}`);
+  log.push(`animations = ${obj.animations.length}`);
+  obj.animations.forEach(c=>log.push(`  clip "${c.name}"  ${c.duration.toFixed(2)}s  tracks=${c.tracks.length}`));
+
+  const VERDICT = (skinned>0 && obj.animations.length>0)
+    ? 'USABLE: skinned mesh + animation clip present'
+    : 'UNUSABLE: ' + (skinned? 'no animation clip' : 'no skinned mesh');
+  log.push('', VERDICT);
+
+  // render the clip at 5 points to prove it actually deforms
+  scene.add(obj);
+  const mixer=new THREE.AnimationMixer(obj);
+  const clip=obj.animations[0];
+  if(clip) mixer.clipAction(clip).play();
+  const c=bb.getCenter(new THREE.Vector3());
+  const dist=sz.y*1.5;
+  cam.position.set(c.x+dist*0.9, c.y+sz.y*0.1, c.z+dist*0.5); cam.lookAt(c.x,c.y,c.z);
+  const px=[];
+  for(let i=0;i<N;i++){
+    mixer.setTime(clip ? clip.duration*i/N : 0);
+    r.render(scene,cam); ctx.drawImage(r.domElement,i*W,0);
+    ctx.fillStyle='#9fe'; ctx.font='12px monospace';
+    ctx.fillText(`t=${(clip?clip.duration*i/N:0).toFixed(2)}s`, i*W+8, 16);
+    const gl=r.getContext(); const buf=new Uint8Array(W*H*4);
+    gl.readPixels(0,0,W,H,gl.RGBA,gl.UNSIGNED_BYTE,buf); px.push(buf);
+  }
+  const diff=(a,b)=>{let n=0;for(let i=0;i<a.length;i+=4){if(Math.abs(a[i]-b[i])+Math.abs(a[i+1]-b[i+1])+Math.abs(a[i+2]-b[i+2])>12)n++;}return n;};
+  log.push('', `pixels changed between clip frames: ${[1,2,3,4].map(i=>diff(px[0],px[i])).join(', ')}  (all zero would mean the clip does not move the mesh)`);
+}catch(e){ log.push('FBX LOAD FAILED: '+(e&&e.message||e)); }
+out.textContent=log.join('\n'); window.__FBX__=log.join('\n');
+</script></body></html>

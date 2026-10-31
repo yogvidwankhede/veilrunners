@@ -1,0 +1,37 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Mixamo OBJ check</title>
+<style>body{margin:0;background:#1a1f1e;color:#8f8;font:12px ui-monospace,monospace}#out{padding:8px}</style>
+<script type="importmap">{"imports":{"three":"/node_modules/three/build/three.module.js","three/examples/jsm/":"/node_modules/three/examples/jsm/"}}</script>
+</head><body><pre id="out">loading…</pre><script type="module">
+import * as THREE from 'three';
+import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
+import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader.js';
+const W=300,H=560, views=[[3.6,0.95,0.2],[0.2,0.95,3.6],[2.6,0.95,2.6]];
+const strip=document.createElement('canvas'); strip.width=W*views.length; strip.height=H;
+document.body.appendChild(strip); const ctx=strip.getContext('2d');
+const r=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true}); r.setSize(W,H); r.setPixelRatio(1);
+r.outputColorSpace=THREE.SRGBColorSpace;
+const scene=new THREE.Scene(); scene.background=new THREE.Color(0x222a28);
+scene.add(new THREE.HemisphereLight(0xffffff,0x334444,2.4));
+const d=new THREE.DirectionalLight(0xffffff,2.0); d.position.set(3,5,4); scene.add(d);
+const grid=new THREE.GridHelper(4,8,0x446655,0x334444); scene.add(grid);
+const cam=new THREE.PerspectiveCamera(32,W/H,0.1,50);
+const log=[];
+const mtl=await new MTLLoader().setPath('/mixamo-upload/').loadAsync('runner.mtl');
+mtl.preload();
+const obj=await new OBJLoader().setMaterials(mtl).setPath('/mixamo-upload/').loadAsync('runner.obj');
+scene.add(obj);
+let meshes=0, verts=0, hasUV=false, hasN=false;
+obj.traverse(o=>{ if(!o.isMesh) return; meshes++; const a=o.geometry.attributes;
+  verts+=a.position.count; hasUV=hasUV||!!a.uv; hasN=hasN||!!a.normal;
+  const m=o.material; log.push(`  mesh "${o.name}" verts=${a.position.count} uv=${!!a.uv} normal=${!!a.normal} map=${!!(m&&m.map)}`); });
+const bb=new THREE.Box3().setFromObject(obj), sz=new THREE.Vector3(); bb.getSize(sz);
+log.unshift(`meshes=${meshes} totalVerts=${verts} uv=${hasUV} normals=${hasN}`,
+  `bbox ${sz.x.toFixed(3)} x ${sz.y.toFixed(3)} x ${sz.z.toFixed(3)}  (expect 0.642 x 1.898 x 0.357)`,
+  `texture loaded = ${[...scene.children].length>0}`);
+obj.position.y -= bb.min.y;
+views.forEach((v,i)=>{ cam.position.set(...v); cam.lookAt(0,0.9,0); r.render(scene,cam);
+  ctx.drawImage(r.domElement, i*W, 0);
+  ctx.fillStyle='#9fe'; ctx.font='13px monospace'; ctx.fillText(['side','front','3/4'][i], i*W+8, 18); });
+document.getElementById('out').textContent=log.join('\n');
+window.__OBJ__=log.join('\n');
+</script></body></html>

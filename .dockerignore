@@ -1,0 +1,10 @@
+node_modules
+snaps
+.git
+mixamo-upload
+assets/orig
+assets/*_hires.glb
+index-embedded.html
+index-artifact.html
+dist.bundle.js
+*.md

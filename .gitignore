@@ -1,0 +1,14 @@
+# installed, not authored — restore with `npm install`
+node_modules/
+
+# dev-only render captures from serve.mjs /__snap
+snaps/
+
+# build outputs: regenerate with `node tools/build.mjs`
+dist.bundle.js
+index.html
+index-embedded.html
+index-artifact.html
+
+.DS_Store
+dist/
